@@ -1,0 +1,44 @@
+{
+  "name": "tuned-tensor",
+  "version": "0.1.0",
+  "description": "Codex plugin for fine-tuning and locally serving Tuned Tensor behaviour-spec models.",
+  "author": {
+    "name": "Tuned Tensor",
+    "url": "https://tunedtensor.com/"
+  },
+  "homepage": "https://tunedtensor.com/docs",
+  "repository": "https://github.com/tunedtensor/tuned-tensor-codex-plugin",
+  "license": "MIT",
+  "keywords": [
+    "tuned-tensor",
+    "fine-tuning",
+    "behaviour-specs",
+    "open-weight-models",
+    "tt-cli"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Tuned Tensor",
+    "shortDescription": "Build and operate Tuned Tensor behaviour specs.",
+    "longDescription": "Helps Codex use focused tt CLI workflows to fine-tune Tuned Tensor behaviour-spec models and serve completed models locally through an OpenAI-compatible API.",
+    "developerName": "Tuned Tensor",
+    "category": "Productivity",
+    "capabilities": [
+      "CLI",
+      "Automation",
+      "Fine-tuning",
+      "Local Serving"
+    ],
+    "websiteURL": "https://tunedtensor.com/",
+    "privacyPolicyURL": "https://tunedtensor.com/privacy",
+    "termsOfServiceURL": "https://tunedtensor.com/terms",
+    "brandColor": "#2563EB",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "defaultPrompt": [
+      "Fine-tune a Tuned Tensor model from this behaviour spec.",
+      "Serve this Tuned Tensor model locally on port 8000.",
+      "Inspect my Tuned Tensor run and summarize regressions."
+    ]
+  }
+}
