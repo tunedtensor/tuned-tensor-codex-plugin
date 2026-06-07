@@ -11,8 +11,8 @@ Tuned Tensor turns behaviour specs into small open-weight models with regression
 
 Use the focused skills when the user has a concrete task:
 
-- `tuned-tensor-fine-tune`: create or update `tunedtensor.json`, validate, push, start runs, watch runs, inspect regressions, upload datasets, or continue from a parent model.
-- `tuned-tensor-serve-local`: inspect model artifacts, download completed models, run `tt models serve`, configure the OpenAI-compatible local API, or test local inference.
+- `tuned-tensor-fine-tune`: create or update `tunedtensor.json`, validate, push, estimate/start runs, watch runs, inspect regressions, upload datasets, or continue from a parent model.
+- `tuned-tensor-serve-local`: inspect model artifacts, download/export completed models, run `tt models serve`, configure the OpenAI-compatible local API, or test local inference.
 
 Use this overview skill for setup, general Tuned Tensor questions, or tasks that span both workflows.
 

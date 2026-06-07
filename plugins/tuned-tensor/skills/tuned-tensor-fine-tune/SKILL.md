@@ -87,6 +87,13 @@ tt --json runs get <run-id>
 
 ## Start A Run
 
+Preview cost and rough wall-clock duration before starting, especially for dataset-backed, continued, or hyperparameter-heavy runs:
+
+```bash
+tt runs estimate <spec-id>
+tt runs estimate <spec-id> --dataset <dataset-id> --epochs 4
+```
+
 Start with default training settings unless the user asks for specific hyperparameters:
 
 ```bash
@@ -96,6 +103,7 @@ tt runs start <spec-id>
 Common controls:
 
 ```bash
+tt runs estimate <spec-id> --epochs 3 --lr 0.0002 --batch-size 8
 tt runs start <spec-id> --epochs 3 --lr 0.0002 --batch-size 8
 tt runs start <spec-id> --max-eval-examples 100 --max-test-eval-examples 100
 tt runs start <spec-id> --no-augment
@@ -111,6 +119,7 @@ tt runs start <spec-id> --long-examples truncate --max-seq-length 4096
 Continue from a completed fine-tuned model only when the user wants incremental training:
 
 ```bash
+tt runs estimate <spec-id> --parent-model <model-id>
 tt runs start <spec-id> --parent-model <model-id>
 ```
 
