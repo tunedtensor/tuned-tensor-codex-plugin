@@ -1,11 +1,11 @@
 ---
 name: tuned-tensor-serve-local
-description: Use when an agent needs to download, configure, run, test, or troubleshoot a completed Tuned Tensor model with tt models serve and its OpenAI-compatible local API.
+description: Use when an agent needs to download, export, configure, run, test, or troubleshoot a completed Tuned Tensor model with tt models serve and its OpenAI-compatible local API.
 ---
 
 # Tuned Tensor Local Serving
 
-Use this skill when the user wants to run a completed Tuned Tensor model locally. The serving command exposes an OpenAI-compatible local API.
+Use this skill when the user wants to run a completed Tuned Tensor model locally, export it to GGUF/Ollama, or inspect downloaded artifacts. The serving command exposes an OpenAI-compatible local API.
 
 ## Start State
 
@@ -51,6 +51,24 @@ tt models download <model-id> --output ./model-dir
 ```
 
 Use `--force` only when the user intends to overwrite an existing output.
+
+## Export For GGUF Or Ollama
+
+Use `tt models export` when the user wants a llama.cpp GGUF file or an Ollama package instead of a live local server:
+
+```bash
+tt models export <model-id> --format gguf --quant q4_k_m --ollama
+tt models export <model-id> --quant q8_0 --ollama --print-command
+```
+
+If llama.cpp tools are not on `PATH`, point the CLI at the local build:
+
+```bash
+tt models export <model-id> --llama-cpp /path/to/llama.cpp
+tt models export <model-id> --convert-script /path/to/convert_hf_to_gguf.py --quantize-bin /path/to/llama-quantize
+```
+
+Use `--print-command` before running conversions in unfamiliar environments, and do not commit exported `.gguf` files, Modelfiles, downloaded archives, or extracted model directories.
 
 ## Serve The Model
 
