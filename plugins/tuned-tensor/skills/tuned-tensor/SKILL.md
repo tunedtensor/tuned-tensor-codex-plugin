@@ -27,7 +27,7 @@ npm install -g @tuned-tensor/cli
 Authenticate with an API key from the Tuned Tensor dashboard:
 
 ```bash
-tt auth login tt_your_api_key
+tt auth login <api-key>
 tt auth status
 ```
 
