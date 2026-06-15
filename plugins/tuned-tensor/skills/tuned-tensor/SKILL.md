@@ -89,7 +89,7 @@ https://tunedtensor.com/api/v1
 Authenticate REST calls with:
 
 ```text
-Authorization: Bearer tt_your_api_key
+Authorization: Bearer <api-key>
 ```
 
 Prefer official docs before constructing raw requests:
