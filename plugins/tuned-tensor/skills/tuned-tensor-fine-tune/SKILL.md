@@ -110,10 +110,11 @@ tt runs start <spec-id> --no-augment
 tt runs start <spec-id> --no-llm-judge
 ```
 
-Use long-example handling when the dataset might exceed context limits:
+Use long-example and output-budget controls when dataset rows or expected completions might exceed context limits:
 
 ```bash
 tt runs start <spec-id> --long-examples truncate --max-seq-length 4096
+tt runs start <spec-id> --max-output-tokens 512 --eval-reserved-output-tokens 128
 ```
 
 Continue from a completed fine-tuned model only when the user wants incremental training:
