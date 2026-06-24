@@ -71,6 +71,7 @@ tt -u https://your-api.example.com specs list
 - `google/gemma-4-E4B-it`
 - `Qwen/Qwen3.5-2B`
 - `Qwen/Qwen3.5-4B`
+- `Qwen/Qwen3-VL-2B-Instruct` for small multimodal/OCR and image-to-JSON workflows
 - `meta-llama/Llama-3.2-3B-Instruct`
 - `microsoft/Phi-4-mini-instruct`
 - `ibm-granite/granite-3.3-2b-instruct`

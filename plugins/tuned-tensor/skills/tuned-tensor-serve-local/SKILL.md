@@ -159,6 +159,25 @@ curl http://127.0.0.1:8000/v1/chat/completions \
   }'
 ```
 
+For Qwen3-VL or other multimodal artifacts, send OpenAI-style image content parts. Use a data URI or reachable image URL and keep local/private images out of logs:
+
+```bash
+curl http://127.0.0.1:8000/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "model": "tuned-tensor-local",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {"type": "text", "text": "Extract the invoice total as JSON."},
+          {"type": "image_url", "image_url": {"url": "data:image/png;base64,<image-bytes>"}}
+        ]
+      }
+    ]
+  }'
+```
+
 If the API model name differs, use the model name returned by `/v1/models`.
 
 ## Troubleshooting
