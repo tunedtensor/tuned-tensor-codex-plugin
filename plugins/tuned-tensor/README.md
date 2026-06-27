@@ -6,7 +6,7 @@ This local Codex plugin teaches agents how to use Tuned Tensor through the `tt` 
 
 - `.codex-plugin/plugin.json` - plugin metadata for Codex.
 - `skills/tuned-tensor/SKILL.md` - overview, setup, and workflow routing.
-- `skills/tuned-tensor-fine-tune/SKILL.md` - behaviour spec, eval, push, run, dataset, and regression workflow.
+- `skills/tuned-tensor-fine-tune/SKILL.md` - behaviour spec, eval, push, run, dataset, run report, and regression workflow.
 - `skills/tuned-tensor-serve-local/SKILL.md` - download, serve, configure, and test local model serving.
 - `scripts/check-tt.sh` - quick local CLI/auth/credit status check.
 

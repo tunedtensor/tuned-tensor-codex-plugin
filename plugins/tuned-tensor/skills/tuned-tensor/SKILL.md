@@ -48,6 +48,7 @@ Do not print full API keys. If auth is missing, ask the user for a safe login fl
 tt specs list
 tt datasets list
 tt runs list
+tt runs report <run-id>
 tt models list
 tt models base
 tt balance

@@ -1,6 +1,6 @@
 {
   "name": "tuned-tensor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Codex plugin for fine-tuning and locally serving Tuned Tensor behaviour-spec models.",
   "author": {
     "name": "Tuned Tensor",
@@ -38,7 +38,7 @@
     "defaultPrompt": [
       "Fine-tune a Tuned Tensor model from this behaviour spec.",
       "Serve this Tuned Tensor model locally on port 8000.",
-      "Inspect my Tuned Tensor run and summarize regressions."
+      "Inspect my Tuned Tensor run report and summarize regressions."
     ]
   }
 }

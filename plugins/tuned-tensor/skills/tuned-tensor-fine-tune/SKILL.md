@@ -91,6 +91,7 @@ Use global `--json` when another program needs structured output:
 ```bash
 tt --json eval
 tt --json runs get <run-id>
+tt --json runs report <run-id>
 ```
 
 ## Start A Run
@@ -145,13 +146,27 @@ Inspect results:
 
 ```bash
 tt runs get <run-id>
+tt runs report <run-id>
+```
+
+Use `tt runs report <run-id>` to compare aggregate base-vs-tuned metrics and inspect side-by-side Expected, Base, and Tuned outputs for top regressions. For the worst tuned failures instead of regressions, use:
+
+```bash
+tt runs report <run-id> --mode failures
+```
+
+For held-out test examples, use:
+
+```bash
+tt runs report <run-id> --split test
+tt runs report <run-id> --split all
 ```
 
 When reviewing a run, summarize:
 
 - Status and completed model ID, if available.
 - Pass/fail movement and aggregate scores.
-- Failed examples and regressions.
+- Failed examples and regressions, including Expected/Base/Tuned differences from `tt runs report` when available.
 - Judge notes or recurring failure patterns.
 - The next smallest spec or dataset change to try.
 

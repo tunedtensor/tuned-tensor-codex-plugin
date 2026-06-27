@@ -21,7 +21,7 @@ Start a new Codex thread after installing so the new skills are available.
 ## Included Skills
 
 - `tuned-tensor`: overview, setup, safety rules, and routing.
-- `tuned-tensor-fine-tune`: create specs, validate, push, estimate/start runs, inspect regressions, and upload datasets.
+- `tuned-tensor-fine-tune`: create specs, validate, push, estimate/start runs, inspect run reports/regressions, and upload datasets.
 - `tuned-tensor-serve-local`: download, export to GGUF/Ollama, configure, serve, test, and troubleshoot local model serving.
 
 ## Requirements
