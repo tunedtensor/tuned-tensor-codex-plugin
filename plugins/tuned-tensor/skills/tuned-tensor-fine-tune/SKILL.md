@@ -56,7 +56,7 @@ For document OCR/image-to-JSON datasets, use the explicit OCR format so the CLI 
 tt datasets upload ocr-training.jsonl --name "OCR training data" --format document_ocr_jsonl
 ```
 
-Each OCR row should include an `input`, `output`, and `input_assets` array with image metadata/data URIs or supported image references. Prefer `Qwen/Qwen3-VL-2B-Instruct` for small document/OCR multimodal runs.
+Each OCR row should include an `input` object with `prompt` and `assets` fields plus a string `output`; each asset can use image metadata and a `data_uri`, `uri`, or `path` reference. Prefer `Qwen/Qwen3-VL-2B-Instruct` for small document/OCR multimodal runs.
 
 Attach the dataset when starting the run:
 
