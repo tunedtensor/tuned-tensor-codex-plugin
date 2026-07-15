@@ -1,7 +1,7 @@
 {
   "name": "tuned-tensor",
   "version": "0.1.1",
-  "description": "Codex plugin for fine-tuning and locally serving Tuned Tensor behaviour-spec models.",
+  "description": "Codex plugin for local-first or managed Tuned Tensor fine-tuning, evaluation, and local serving.",
   "author": {
     "name": "Tuned Tensor",
     "url": "https://tunedtensor.com/"
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Tuned Tensor",
     "shortDescription": "Build and operate Tuned Tensor behaviour specs.",
-    "longDescription": "Helps Codex use focused tt CLI workflows to fine-tune Tuned Tensor behaviour-spec models and serve completed models locally through an OpenAI-compatible API.",
+    "longDescription": "Helps Codex choose TT Local for local-first training/evaluation or the managed tt CLI for account-backed runs, then serve completed models locally through an OpenAI-compatible API.",
     "developerName": "Tuned Tensor",
     "category": "Productivity",
     "capabilities": [
