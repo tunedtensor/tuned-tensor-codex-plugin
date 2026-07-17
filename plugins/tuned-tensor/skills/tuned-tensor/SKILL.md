@@ -5,26 +5,44 @@ description: Use for broad Tuned Tensor orientation, setup, safety rules, and ch
 
 # Tuned Tensor
 
-Tuned Tensor turns behaviour specs into small open-weight models with regression-aware evaluation. Prefer the `tt` CLI for automation; use the REST API only when the CLI cannot express the workflow.
+Tuned Tensor turns behaviour specs into small open-weight models with regression-aware, paired baseline-vs-tuned evaluation. Use `tt-local` from `@tuned-tensor/local` for local-first training and evaluation on a compatible NVIDIA GPU on Linux. Use the `tt` CLI for the optional managed Tuned Tensor service; use the REST API only when the managed CLI cannot express the workflow.
 
 ## Workflow Routing
 
-Use the focused skills when the user has a concrete task:
+Use the focused skills when the user has a concrete managed-service task:
 
-- `tuned-tensor-fine-tune`: create or update `tunedtensor.json`, validate, push, estimate/start runs, watch runs, inspect regressions, upload datasets, or continue from a parent model.
-- `tuned-tensor-serve-local`: inspect model artifacts, download/export completed models, run `tt models serve`, configure the OpenAI-compatible local API, or test local inference.
+- `tuned-tensor-fine-tune`: create or update `tunedtensor.json`, validate, push, estimate/start managed runs, watch runs, inspect regressions, upload datasets, or continue from a parent model.
+- `tuned-tensor-serve-local`: inspect model artifacts, download/export completed managed models, run `tt models serve`, configure the OpenAI-compatible local API, or test local inference.
+
+For local-first training/evaluation without a Tuned Tensor account, start with:
+
+```bash
+npm install -g @tuned-tensor/local
+tt-local init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B --profile spark
+# Edit tunedtensor.json, then:
+tt-local doctor tunedtensor.json --config local-runner.json
+tt-local run tunedtensor.json --config local-runner.json
+tt-local runs report <run-id> --config local-runner.json
+```
 
 Use this overview skill for setup, general Tuned Tensor questions, or tasks that span both workflows.
 
 ## CLI Setup
 
-Install the CLI:
+Install TT Local for local-first workflows:
+
+```bash
+npm install -g @tuned-tensor/local
+tt-local info
+```
+
+Install the managed CLI when using the optional account-backed service:
 
 ```bash
 npm install -g @tuned-tensor/cli
 ```
 
-Authenticate with an API key from the Tuned Tensor dashboard:
+Authenticate the managed CLI with an API key from the Tuned Tensor dashboard:
 
 ```bash
 tt auth login <api-key>
@@ -40,9 +58,9 @@ tt balance
 rg --files -g 'tunedtensor.json'
 ```
 
-Do not print full API keys. If auth is missing, ask the user for a safe login flow rather than inventing credentials.
+Do not print full API keys. If managed auth is missing, ask the user for a safe login flow rather than inventing credentials. TT Local workflows do not require a Tuned Tensor account, but they do require a compatible Linux/NVIDIA GPU environment.
 
-## Common Commands
+## Managed Common Commands
 
 ```bash
 tt specs list
@@ -66,7 +84,7 @@ Use a custom API base URL only for local or staging environments:
 tt -u https://your-api.example.com specs list
 ```
 
-## Supported Base Models
+## Managed Base Models
 
 - `google/gemma-4-E2B-it`
 - `google/gemma-4-E4B-it`
@@ -80,7 +98,7 @@ tt -u https://your-api.example.com specs list
 
 When unsure, run `tt models base` and choose the smallest supported model that can plausibly handle the task.
 
-## REST API Fallback
+## Managed REST API Fallback
 
 Base URL:
 
