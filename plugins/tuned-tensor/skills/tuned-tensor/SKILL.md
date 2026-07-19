@@ -5,7 +5,7 @@ description: Use for broad Tuned Tensor orientation, setup, safety rules, and ch
 
 # Tuned Tensor
 
-Tuned Tensor turns behaviour specs into small open-weight models with regression-aware, paired baseline-vs-tuned evaluation. Use `tt-local` from `@tuned-tensor/local` for local-first training and evaluation on a compatible NVIDIA GPU on Linux. Use the `tt` CLI for the optional managed Tuned Tensor service; use the REST API only when the managed CLI cannot express the workflow.
+Tuned Tensor turns behaviour specs into small open-weight models with regression-aware, paired baseline-vs-tuned evaluation. Use `tt-local` from `@tuned-tensor/local` for local-first training and evaluation on a compatible NVIDIA GPU on Linux; use TT Local Studies when the task is a tabular/classic-ML benchmark with locked splits, immutable trials, and one-shot held-out testing. Use the `tt` CLI for the optional managed Tuned Tensor service; use the REST API only when the managed CLI cannot express the workflow.
 
 ## Workflow Routing
 
@@ -13,6 +13,8 @@ Use the focused skills when the user has a concrete managed-service task:
 
 - `tuned-tensor-fine-tune`: create or update `tunedtensor.json`, validate, push, estimate/start managed runs, watch runs, inspect regressions, upload datasets, or continue from a parent model.
 - `tuned-tensor-serve-local`: inspect model artifacts, download/export completed managed models, run `tt models serve`, configure the OpenAI-compatible local API, or test local inference.
+
+For tabular binary classification, classic ML baselines, purged time splits, and one-shot held-out evaluation, use TT Local Studies from the hosted `/docs/local-studies` guide rather than forcing the problem into a generative fine-tuning workflow.
 
 For local-first training/evaluation without a Tuned Tensor account, start with:
 
@@ -25,7 +27,17 @@ tt-local run tunedtensor.json --config local-runner.json
 tt-local runs report <run-id> --config local-runner.json
 ```
 
-Use this overview skill for setup, general Tuned Tensor questions, or tasks that span both workflows.
+Use this overview skill for setup, general Tuned Tensor questions, or tasks that span managed fine-tuning, local serving, and Local Studies.
+
+Local Studies command shape:
+
+```bash
+tt-local studies lock polymarket.study.json
+tt-local studies validate polymarket.study.json
+tt-local studies run polymarket.study.json logreg-balanced-c1.trial.json
+tt-local studies promote polymarket.study.json logreg-balanced-c1.trial.json
+tt-local studies test polymarket.study.json
+```
 
 ## CLI Setup
 
