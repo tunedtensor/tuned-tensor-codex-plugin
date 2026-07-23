@@ -145,11 +145,12 @@ tt runs watch <run-id> --interval 10000
 Inspect results:
 
 ```bash
+tt runs list --summary --json
 tt runs get <run-id>
 tt runs report <run-id>
 ```
 
-Use `tt runs report <run-id>` to compare aggregate base-vs-tuned metrics and inspect side-by-side Expected, Base, and Tuned outputs for top regressions. For the worst tuned failures instead of regressions, use:
+Use `tt runs list --summary --json` when an agent or script only needs compact run status, scores, and pagination without detailed evaluation/event payloads. Use `tt runs report <run-id>` to compare aggregate base-vs-tuned metrics and inspect side-by-side Expected, Base, and Tuned outputs for top regressions. For the worst tuned failures instead of regressions, use:
 
 ```bash
 tt runs report <run-id> --mode failures
