@@ -1,6 +1,6 @@
 # Tuned Tensor Codex Plugin
 
-This repository publishes the Tuned Tensor Codex plugin as a Git marketplace. It helps Codex agents fine-tune and evaluate Tuned Tensor behaviour-spec models with TT Local or the optional managed `tt` CLI, then serve completed models locally.
+This repository publishes the Tuned Tensor Codex plugin as a Git marketplace. It helps Codex agents fine-tune and evaluate Tuned Tensor behaviour-spec models with TT Local or the optional managed `tt` CLI, route tabular/classic-ML work to TT Local Studies, then serve completed models locally.
 
 ## Install
 
@@ -20,13 +20,13 @@ Start a new Codex thread after installing so the new skills are available.
 
 ## Included Skills
 
-- `tuned-tensor`: overview, local-vs-managed setup, safety rules, and routing.
+- `tuned-tensor`: overview, local-vs-managed setup, Local Studies routing, safety rules, and routing.
 - `tuned-tensor-fine-tune`: create specs, validate, push, estimate/start managed runs, inspect run reports/regressions, and upload datasets.
 - `tuned-tensor-serve-local`: download, export to GGUF/Ollama, configure, serve, test, and troubleshoot local model serving.
 
 ## Requirements
 
-For local-first training and evaluation on a compatible NVIDIA GPU on Linux, install TT Local:
+For local-first training/evaluation on a compatible NVIDIA GPU on Linux, or for CPU-friendly TT Local Studies, install TT Local:
 
 ```bash
 npm install -g @tuned-tensor/local
