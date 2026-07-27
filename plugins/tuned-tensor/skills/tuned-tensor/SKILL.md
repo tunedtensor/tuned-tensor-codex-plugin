@@ -5,7 +5,7 @@ description: Use for broad Tuned Tensor orientation, setup, safety rules, and ch
 
 # Tuned Tensor
 
-Tuned Tensor turns behaviour specs into small open-weight models with regression-aware, paired baseline-vs-tuned evaluation. Use `tt-local` from `@tuned-tensor/local` for local-first training and evaluation on a compatible NVIDIA GPU on Linux; use TT Local Studies when the task is a tabular/classic-ML benchmark with locked splits, immutable trials, and one-shot held-out testing. Use the `tt` CLI for the optional managed Tuned Tensor service; use the REST API only when the managed CLI cannot express the workflow.
+Tuned Tensor turns behaviour specs into small open-weight models with regression-aware, paired baseline-vs-tuned evaluation. Install the unified `tt` CLI from `@tuned-tensor/cli` for every workflow: use normal `tt` commands for account-backed cloud runs, and use `tt local ...` commands for local-first training and evaluation on a compatible NVIDIA GPU on Linux. Use the REST API only when the CLI cannot express the workflow.
 
 ## Workflow Routing
 
@@ -14,47 +14,30 @@ Use the focused skills when the user has a concrete managed-service task:
 - `tuned-tensor-fine-tune`: create or update `tunedtensor.json`, validate, push, estimate/start managed runs, watch runs, inspect regressions, upload datasets, or continue from a parent model.
 - `tuned-tensor-serve-local`: inspect model artifacts, download/export completed managed models, run `tt models serve`, configure the OpenAI-compatible local API, or test local inference.
 
-For tabular binary classification, classic ML baselines, purged time splits, and one-shot held-out evaluation, use TT Local Studies from the hosted `/docs/local-studies` guide rather than forcing the problem into a generative fine-tuning workflow.
-
 For local-first training/evaluation without a Tuned Tensor account, start with:
 
 ```bash
-npm install -g @tuned-tensor/local
-tt-local init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B --profile spark
+npm install -g @tuned-tensor/cli
+tt local init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B --profile spark
 # Edit tunedtensor.json, then:
-tt-local doctor tunedtensor.json --config local-runner.json
-tt-local run tunedtensor.json --config local-runner.json
-tt-local runs report <run-id> --config local-runner.json
+tt local doctor tunedtensor.json --config local-runner.json
+tt local run tunedtensor.json --config local-runner.json
+tt local runs report <run-id> --config local-runner.json
 ```
 
-Use this overview skill for setup, general Tuned Tensor questions, or tasks that span managed fine-tuning, local serving, and Local Studies.
-
-Local Studies command shape:
-
-```bash
-tt-local studies lock polymarket.study.json
-tt-local studies validate polymarket.study.json
-tt-local studies run polymarket.study.json logreg-balanced-c1.trial.json
-tt-local studies promote polymarket.study.json logreg-balanced-c1.trial.json
-tt-local studies test polymarket.study.json
-```
+Use this overview skill for setup, general Tuned Tensor questions, or tasks that span cloud fine-tuning, local training, and local serving.
 
 ## CLI Setup
 
-Install TT Local for local-first workflows:
-
-```bash
-npm install -g @tuned-tensor/local
-tt-local info
-```
-
-Install the managed CLI when using the optional account-backed service:
+Install one CLI package for both cloud and local workflows. Node.js 22+ is required:
 
 ```bash
 npm install -g @tuned-tensor/cli
+tt --version
+tt status
 ```
 
-Authenticate the managed CLI with an API key from the Tuned Tensor dashboard:
+Authenticate the cloud workflow with an API key from the Tuned Tensor dashboard:
 
 ```bash
 tt auth login <api-key>
@@ -65,14 +48,15 @@ Before making changes, orient with:
 
 ```bash
 tt --version
+tt status
 tt auth status
 tt balance
 rg --files -g 'tunedtensor.json'
 ```
 
-Do not print full API keys. If managed auth is missing, ask the user for a safe login flow rather than inventing credentials. TT Local workflows do not require a Tuned Tensor account, but they do require a compatible Linux/NVIDIA GPU environment.
+Do not print full API keys. If managed auth is missing, ask the user for a safe login flow rather than inventing credentials. Local workflows do not require a Tuned Tensor account, but they do require a compatible Linux/NVIDIA GPU environment.
 
-## Managed Common Commands
+## Common Cloud Commands
 
 ```bash
 tt specs list
