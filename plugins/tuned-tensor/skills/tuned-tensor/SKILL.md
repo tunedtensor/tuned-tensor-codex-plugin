@@ -62,16 +62,18 @@ Do not print full API keys. If managed auth is missing, ask the user for a safe 
 tt specs list
 tt datasets list
 tt runs list
+tt runs list --summary --json
 tt runs report <run-id>
 tt models list
 tt models base
 tt balance
 ```
 
-Use global `--json` when another program needs to parse command output:
+Use `tt runs list --summary --json` when an agent or script only needs compact run status, scores, and pagination without detailed evaluation/event payloads. Use full run fetches and reports for deeper triage:
 
 ```bash
 tt --json runs get <run-id>
+tt runs report <run-id>
 ```
 
 Use a custom API base URL only for local or staging environments:
