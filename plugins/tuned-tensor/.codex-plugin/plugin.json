@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Tuned Tensor",
     "shortDescription": "Build and operate Tuned Tensor behaviour specs.",
-    "longDescription": "Helps Codex choose TT Local for local-first training/evaluation or the managed tt CLI for account-backed runs, then serve completed models locally through an OpenAI-compatible API.",
+    "longDescription": "Helps Codex use one tt CLI for token-free local training, evaluation, and serving, optional cloud runs and reporting, and a local agent with managed Tuned Tensor inference or a user-selected provider and model.",
     "developerName": "Tuned Tensor",
     "category": "Productivity",
     "capabilities": [

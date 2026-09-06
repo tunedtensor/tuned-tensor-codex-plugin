@@ -1,37 +1,62 @@
 ---
 name: tuned-tensor-serve-local
-description: Use when an agent needs to download, export, configure, run, test, or troubleshoot a completed Tuned Tensor model with tt models serve and its OpenAI-compatible local API.
+description: Verify and serve local Tuned Tensor adapters, or download, export, and serve completed cloud models through an OpenAI-compatible local API.
 ---
 
 # Tuned Tensor Local Serving
 
-Use this skill when the user wants to run a completed Tuned Tensor model locally, export it to GGUF/Ollama, or inspect downloaded artifacts. The serving command exposes an OpenAI-compatible local API.
+Use the root `tt serve` lifecycle for local adapters. Cloud model download, export, and serving are under `tt cloud models`. Both serving paths expose an OpenAI-compatible local API, but their model identifiers and options differ.
 
-## Start State
+## Local Adapters
 
-Before downloading or starting a server:
+Local models and already-local artifacts do not require a Tuned Tensor access token. Start with local context:
 
 ```bash
 tt --version
-tt auth status
+tt status
 tt models list
+tt runs report <run-id>
+tt models verify local-<run-id>
+tt serve local-<run-id> --config local-runner.json --print-command
+tt serve local-<run-id> --config local-runner.json
 ```
 
-If the user provides a run ID rather than a model ID, inspect the run first:
+Use the same runner config as the training run. `tt serve` accepts a local model ID, `active`, or `base`; it does not accept an arbitrary downloaded cloud archive. Inspect `tt serve --help` for options. CPU evaluation/serving is supported with `--device cpu`; local training needs supported CUDA hardware.
+
+Optional activation requires a verified model and a passing `generalRegression` suite configured for its run:
 
 ```bash
-tt runs get <run-id>
+tt models activate local-<run-id> --config local-runner.json
+tt serve active --config local-runner.json
 ```
 
-Serve only completed models. If the run is still active, use:
+Without a passing gate, serve the verified model explicitly instead of bypassing activation. `tt serve active` fails if no adapter has been activated. `tt serve base` requires `--spec tunedtensor.json` when the project instructions should be enforced.
+
+Keep the default loopback bind. A user-requested non-loopback bind requires the CLI's `--allow-remote` and `--api-key-env <name>` options.
+
+## Cloud Artifacts
+
+The remaining artifact commands use `tt cloud models`. Fetching a remote model or cloud run requires the user's Tuned Tensor access token:
 
 ```bash
-tt runs watch <run-id>
+tt auth status
+# Only if the requested remote operation needs a login:
+tt auth login
+tt cloud models list
 ```
 
-## Choose A Target
+Use the hidden login prompt and keep tokens out of arguments and logs. A downloaded directory or archive can be served or exported without account authentication.
 
-`tt models serve` accepts any of these targets:
+If the user provides a cloud run ID, inspect completion before downloading:
+
+```bash
+tt cloud runs get <run-id>
+tt cloud runs watch <run-id>
+```
+
+## Choose A Cloud Artifact Target
+
+`tt cloud models serve` accepts any of these targets:
 
 - A model ID or prefix.
 - A downloaded model directory.
@@ -40,100 +65,100 @@ tt runs watch <run-id>
 Inspect model details when needed:
 
 ```bash
-tt models get <model-id>
+tt cloud models get <model-id>
 ```
 
 Download only when the user needs a durable local artifact or offline handoff:
 
 ```bash
-tt models download <model-id> --output model.tar.gz
-tt models download <model-id> --output ./model-dir
+tt cloud models download <model-id> --output model.tar.gz
+tt cloud models download <model-id> --output ./model-dir
 ```
 
 Use `--force` only when the user intends to overwrite an existing output.
 
 ## Export For GGUF Or Ollama
 
-Use `tt models export` when the user wants a llama.cpp GGUF file or an Ollama package instead of a live local server:
+Use `tt cloud models export` when the user wants a llama.cpp GGUF file or an Ollama package instead of a live local server:
 
 ```bash
-tt models export <model-id> --format gguf --quant q4_k_m --ollama
-tt models export <model-id> --quant q8_0 --ollama --print-command
+tt cloud models export <model-id> --format gguf --quant q4_k_m --ollama
+tt cloud models export <model-id> --quant q8_0 --ollama --print-command
 ```
 
 If llama.cpp tools are not on `PATH`, point the CLI at the local build:
 
 ```bash
-tt models export <model-id> --llama-cpp /path/to/llama.cpp
-tt models export <model-id> --convert-script /path/to/convert_hf_to_gguf.py --quantize-bin /path/to/llama-quantize
+tt cloud models export <model-id> --llama-cpp /path/to/llama.cpp
+tt cloud models export <model-id> --convert-script /path/to/convert_hf_to_gguf.py --quantize-bin /path/to/llama-quantize
 ```
 
 Use `--print-command` before running conversions in unfamiliar environments, and do not commit exported `.gguf` files, Modelfiles, downloaded archives, or extracted model directories.
 
-## Serve The Model
+## Serve A Cloud Artifact Locally
 
-Default local serving:
+Cloud artifact serving on the local host:
 
 ```bash
-tt models serve <model-id>
+tt cloud models serve <model-id>
 ```
 
 Bind to an explicit host and port:
 
 ```bash
-tt models serve <model-id> --host 127.0.0.1 --port 8000
+tt cloud models serve <model-id> --host 127.0.0.1 --port 8000
 ```
 
 Apply a behaviour spec as the default system prompt:
 
 ```bash
-tt models serve <model-id> --spec tunedtensor.json
+tt cloud models serve <model-id> --spec tunedtensor.json
 ```
 
 Disable automatic spec prompt injection:
 
 ```bash
-tt models serve <model-id> --no-spec-prompt
+tt cloud models serve <model-id> --no-spec-prompt
 ```
 
 Select device and generation defaults:
 
 ```bash
-tt models serve <model-id> --device mps --max-tokens 512 --temperature 0.7
-tt models serve <model-id> --device cpu
-tt models serve <model-id> --device cuda
+tt cloud models serve <model-id> --device mps --max-tokens 512 --temperature 0.7
+tt cloud models serve <model-id> --device cpu
+tt cloud models serve <model-id> --device cuda
 ```
 
 Use a cache directory for downloaded and extracted artifacts:
 
 ```bash
-tt models serve <model-id> --cache-dir ./.tunedtensor-cache
+tt cloud models serve <model-id> --cache-dir ./.tunedtensor-cache
 ```
 
 Print the underlying Python command without starting the server:
 
 ```bash
-tt models serve <model-id> --print-command
+tt cloud models serve <model-id> --print-command
 ```
 
-## Managed Mode
+## Local Server Lifecycle For Cloud Artifacts
 
-Use managed mode when the user wants a local lifecycle manager in front of the model server:
+The `--managed` flag below selects a local server lifecycle manager; it is unrelated to managed agent inference or cloud execution:
 
 ```bash
-tt models serve <model-id> --managed --idle-timeout 300 --restart-after-requests 100
+tt cloud models serve <model-id> --managed --idle-timeout 300 --restart-after-requests 100
 ```
 
 For JSON output workflows:
 
 ```bash
-tt models serve <model-id> --json-schema schema.json --json-repair-attempts 1
+tt cloud models serve <model-id> --json-schema schema.json --json-repair-attempts 1
 ```
 
 Managed request logging:
 
 ```bash
-tt models serve <model-id> --managed --log-file serving.jsonl --gate-field should_process
+tt cloud models serve <model-id> --managed --log-file serving.jsonl --gate-field should_process
 ```
 
 Do not create verbose request logs in a repository unless the user wants them; logs may contain sensitive prompts or outputs.
@@ -182,7 +207,7 @@ If the API model name differs, use the model name returned by `/v1/models`.
 
 ## Troubleshooting
 
-- If the model is not found, run `tt models list` and `tt models get <model-id>`.
+- If the model is not found, run `tt cloud models list` and `tt cloud models get <model-id>`.
 - If download or extraction fails, retry with a clean `--cache-dir`; use `--force-download` only when a stale cache is likely.
 - If GPU startup fails, try `--device auto`, then `--device cpu` to separate environment issues from model issues.
 - If local Python dependencies fail, use `--python <path>` with the intended Python executable.
