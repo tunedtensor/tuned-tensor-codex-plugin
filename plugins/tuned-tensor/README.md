@@ -10,7 +10,7 @@ This plugin teaches agents to use the unified `tt` CLI. Root commands operate lo
 - `skills/tuned-tensor-serve-local/SKILL.md` — local serving and optional cloud artifact handoff.
 - `scripts/check-tt.sh` — local CLI status; pass `--cloud` to include account, credit, and usage checks.
 
-Use a CLI release that registers `tt cloud` and managed-agent support for the optional account workflows. Local-only 0.13 releases still support the root local commands.
+Use CLI 0.15.0 or newer for the documented `tt cloud` and managed-agent workflows. Earlier local-only releases still support the root local commands; inspect their installed help before using examples.
 
 ## Useful Links
 

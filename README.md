@@ -33,6 +33,7 @@ Local commands require no Tuned Tensor access token. Local training additionally
 
 ```bash
 tt init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B --profile spark
+# Edit tunedtensor.json, including both example placeholders.
 tt validate tunedtensor.json
 tt doctor tunedtensor.json
 tt pipeline run --spec tunedtensor.json --dry-run
@@ -50,7 +51,7 @@ tt usage
 
 `tt auth login` prompts for the token with hidden input. Managed inference uses the server-selected model and needs no separate OpenRouter key. To use your own OpenRouter key and choose your own model, open `tt`, run `/login openrouter`, then `/model openrouter/<model-id>`. Agent inference choice and local/cloud execution placement are independent.
 
-These skills target the CLI with `tt cloud` and managed-agent support. Check `tt --help` before using an older installed release; the local-only 0.13 release does not register account or cloud commands. `tt local ...` is a compatibility alias, not a separate tool.
+These skills target CLI 0.15.0 or newer, which includes `tt cloud` and managed-agent support. Check `tt --version` and `tt --help` before using an older installed release; local-only releases do not register account or cloud commands. `tt local ...` is a compatibility alias, not a separate tool.
 
 ## Update
 

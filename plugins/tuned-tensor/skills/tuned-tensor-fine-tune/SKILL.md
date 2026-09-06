@@ -87,7 +87,7 @@ For document OCR/image-to-JSON datasets, use the explicit OCR format so the CLI 
 tt cloud datasets upload ocr-training.jsonl --name "OCR training data" --format document_ocr_jsonl
 ```
 
-Each OCR row should include an `input` object with `prompt` and `assets` fields plus a string `output`; each asset can use image metadata and a `data_uri`, `uri`, or `path` reference. Prefer `Qwen/Qwen3-VL-2B-Instruct` for small document/OCR multimodal runs.
+Each OCR row should include an `input` object with `prompt` and `assets` fields plus a string `output`. For portable cloud uploads, embed each image as a base64 `data_uri` with media type `image/png`, `image/jpeg`, or `image/webp`. The upload command transfers the JSONL file only; it does not upload files referenced by laptop paths, and the cloud runner rejects remote image URLs. Prefer `Qwen/Qwen3-VL-2B-Instruct` for small document/OCR multimodal runs.
 
 Attach the dataset when starting the run:
 

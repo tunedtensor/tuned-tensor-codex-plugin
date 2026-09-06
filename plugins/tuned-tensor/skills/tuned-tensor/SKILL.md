@@ -21,7 +21,7 @@ rg --files -g 'tunedtensor.json'
 
 Local spec creation, validation, reports, and local execution require no Tuned Tensor account or agent-provider key. Local training needs `uv` and supported NVIDIA CUDA hardware; basic CLI inspection does not need a GPU. `tt local ...` and `tt run` are compatibility aliases. Prefer root commands and `tt pipeline run` in new instructions.
 
-These skills target the CLI with `tt cloud` and managed-agent support. If an installed local-only 0.13 release does not show those commands in help, use a release that includes them for account workflows. Do not infer command availability from an old cloud example.
+These skills target CLI 0.15.0 or newer, with `tt cloud` and managed-agent support. If an earlier local-only release does not show those commands in help, update the CLI for account workflows. Do not infer command availability from an old cloud example.
 
 ## Agent Inference
 
