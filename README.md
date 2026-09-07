@@ -1,56 +1,59 @@
 # Tuned Tensor Codex Plugin
 
-This repository publishes the Tuned Tensor Codex plugin as a Git marketplace. It helps Codex agents fine-tune and evaluate Tuned Tensor behaviour-spec models with the unified `tt` CLI, use `tt local ...` for local GPU workflows, then serve completed models locally.
+This repository publishes the Tuned Tensor Codex plugin as a Git marketplace. It helps Codex use one `tt` CLI for local training, evaluation, serving, optional cloud runs, and account reporting. `tt` also runs a conversational agent on the user's laptop. The web app displays cloud runs and published local evidence.
 
 ## Install
 
-Add the marketplace:
+Add the marketplace and install the plugin:
 
 ```bash
 codex plugin marketplace add tunedtensor/tuned-tensor-codex-plugin --ref main
-```
-
-Install the plugin:
-
-```bash
 codex plugin add tuned-tensor@tunedtensor
 ```
 
-Start a new Codex thread after installing so the new skills are available.
+Start a new Codex thread after installing so the skills are available.
 
 ## Included Skills
 
-- `tuned-tensor`: overview, unified CLI setup, local-vs-cloud routing, safety rules, and routing.
-- `tuned-tensor-fine-tune`: create specs, validate, push, estimate/start managed runs, inspect run reports/regressions, and upload datasets.
-- `tuned-tensor-serve-local`: download, export to GGUF/Ollama, configure, serve, test, and troubleshoot local model serving.
+- `tuned-tensor`: CLI setup, local/cloud routing, managed or bring-your-own inference, and account reporting.
+- `tuned-tensor-fine-tune`: create and validate specs, execute local pipelines or cloud runs, and inspect evaluation reports.
+- `tuned-tensor-serve-local`: verify and serve local adapters, or download, export, and serve completed cloud models.
 
 ## Requirements
 
-Install one CLI package for both cloud and local workflows. Node.js 22+ is required:
+Install one CLI package. Node.js 22.19+ is required:
 
 ```bash
-npm install -g @tuned-tensor/cli
+npm install -g --ignore-scripts @tuned-tensor/cli
 tt --version
 tt status
 ```
 
-For the optional managed Tuned Tensor service, authenticate with an API key:
+Local commands require no Tuned Tensor access token. Local training additionally needs `uv` and supported NVIDIA CUDA hardware:
 
 ```bash
-tt auth login <api-key>
-tt auth status
+tt init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B --profile spark
+# Edit tunedtensor.json, including both example placeholders.
+tt validate tunedtensor.json
+tt doctor tunedtensor.json
+tt pipeline run --spec tunedtensor.json --dry-run
 ```
 
-For local training/evaluation on a compatible NVIDIA GPU on Linux, use the same CLI with the local workflow:
+For managed agent inference or cloud operations, use the same Tuned Tensor access token:
 
 ```bash
-tt local info
-tt local init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B --profile spark
+tt auth login
+tt agent configure --provider tunedtensor
+tt cloud runs list --summary --json
+tt balance
+tt usage
 ```
+
+`tt auth login` prompts for the token with hidden input. Managed inference uses the server-selected model and needs no separate OpenRouter key. To use your own OpenRouter key and choose your own model, open `tt`, run `/login openrouter`, then `/model openrouter/<model-id>`. Agent inference choice and local/cloud execution placement are independent.
+
+These skills target CLI 0.15.0 or newer, which includes `tt cloud` and managed-agent support. Check `tt --version` and `tt --help` before using an older installed release; local-only releases do not register account or cloud commands. `tt local ...` is a compatibility alias, not a separate tool.
 
 ## Update
-
-Refresh the marketplace snapshot:
 
 ```bash
 codex plugin marketplace upgrade tunedtensor
@@ -61,6 +64,6 @@ Start a new Codex thread after updating.
 
 ## Sources
 
-- Tuned Tensor: https://tunedtensor.com/
-- Tuned Tensor docs: https://tunedtensor.com/docs
-- Tuned Tensor CLI: https://github.com/tunedtensor/tuned-tensor-cli
+- [Tuned Tensor](https://tunedtensor.com/)
+- [Documentation](https://tunedtensor.com/docs)
+- [CLI repository](https://github.com/tunedtensor/tuned-tensor-cli)

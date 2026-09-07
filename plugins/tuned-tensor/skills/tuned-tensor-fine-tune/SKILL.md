@@ -1,6 +1,6 @@
 ---
 name: tuned-tensor-fine-tune
-description: Use when an agent needs to create behaviour specs, validate and push tunedtensor.json, launch Tuned Tensor fine-tuning runs, inspect regressions, upload datasets, or continue training from a parent model.
+description: Create and validate Tuned Tensor behaviour specs, run local fine-tuning pipelines or cloud runs, and inspect evaluation reports and regressions.
 ---
 
 # Tuned Tensor Fine Tuning
@@ -9,16 +9,15 @@ Use this skill for the full path from behaviour spec to completed Tuned Tensor r
 
 ## Start State
 
-Before changing or launching anything:
+Orient locally before editing or choosing execution placement:
 
 ```bash
 tt --version
-tt auth status
-tt balance
+tt status
 rg --files -g 'tunedtensor.json'
 ```
 
-If auth is missing, stop and ask the user to authenticate safely. Do not print full API keys. Check credits before runs because training can spend balance.
+Spec creation, local validation, and local pipelines need no account token or agent inference key. Choose cloud execution only when the user requests it; cloud authentication and credits are checked at that boundary.
 
 ## Create Or Locate The Spec
 
@@ -31,7 +30,7 @@ tt init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B
 Useful options:
 
 ```bash
-tt init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B --file tunedtensor.json
+tt init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B --output tunedtensor.json
 ```
 
 When updating an existing `tunedtensor.json`:
@@ -41,57 +40,89 @@ When updating an existing `tunedtensor.json`:
 - Edit behaviour deliberately: system prompt, guidelines, constraints, examples, and evaluation expectations should explain the desired model behavior.
 - Prefer small, reviewable edits over broad rewrites.
 
+## Local Pipeline
+
+Use the local workflow on supported CUDA hardware. `--profile spark` on `tt init` writes an adjacent runner config when appropriate for the host. Inspect hardware before selecting a local base model:
+
+```bash
+tt hardware
+tt validate tunedtensor.json
+tt doctor tunedtensor.json
+tt models prefetch tunedtensor.json
+tt pipeline run --spec tunedtensor.json --dry-run
+tt pipeline run --spec tunedtensor.json
+tt runs list
+tt runs report <run-id>
+```
+
+`tt pipeline run` derives the canonical recipe from the spec when no pipeline file exists. Use `--config <path>` for a non-default local runner config. Training and its artifacts stay on the execution host. Do not upload local evidence unless the user wants it published.
+
+Inspect the completed report before proposing another training run. For local serving, use the `tuned-tensor-serve-local` skill with the resulting `local-<run-id>` model.
+
+## Cloud Execution
+
+The commands below operate the cloud service. Authenticate with the same Tuned Tensor access token used for managed agent inference; a separate OpenRouter key is not required:
+
+```bash
+tt auth login
+tt auth status
+tt balance
+tt cloud models base
+```
+
+Use the hidden token prompt when login is needed. Preserve an existing login. Check balance before starting paid runs and inspect the cloud catalog rather than assuming every local model is cloud-supported.
+
 ## Dataset-Backed Runs
 
 If the user provides a JSONL dataset, inspect format and upload it:
 
 ```bash
-tt datasets upload training.jsonl --name "Training data"
-tt datasets list
+tt cloud datasets upload training.jsonl --name "Training data"
+tt cloud datasets list
 ```
 
 For document OCR/image-to-JSON datasets, use the explicit OCR format so the CLI validates image assets before upload:
 
 ```bash
-tt datasets upload ocr-training.jsonl --name "OCR training data" --format document_ocr_jsonl
+tt cloud datasets upload ocr-training.jsonl --name "OCR training data" --format document_ocr_jsonl
 ```
 
-Each OCR row should include an `input` object with `prompt` and `assets` fields plus a string `output`; each asset can use image metadata and a `data_uri`, `uri`, or `path` reference. Prefer `Qwen/Qwen3-VL-2B-Instruct` for small document/OCR multimodal runs.
+Each OCR row should include an `input` object with `prompt` and `assets` fields plus a string `output`. For portable cloud uploads, embed each image as a base64 `data_uri` with media type `image/png`, `image/jpeg`, or `image/webp`. The upload command transfers the JSONL file only; it does not upload files referenced by laptop paths, and the cloud runner rejects remote image URLs. Prefer `Qwen/Qwen3-VL-2B-Instruct` for small document/OCR multimodal runs.
 
 Attach the dataset when starting the run:
 
 ```bash
-tt runs start <spec-id> --dataset <dataset-id>
+tt cloud runs start <spec-id> --dataset <dataset-id>
 ```
 
 Optional split controls:
 
 ```bash
-tt runs start <spec-id> --dataset <dataset-id> --train-ratio 0.8 --validation-ratio 0.1 --test-ratio 0.1
+tt cloud runs start <spec-id> --dataset <dataset-id> --train-ratio 0.8 --validation-ratio 0.1 --test-ratio 0.1
 ```
 
 ## Validate And Push
 
-Always validate before pushing:
+Validate locally before pushing; `tt cloud push` also checks cloud compatibility:
 
 ```bash
-tt eval
-tt push
+tt validate tunedtensor.json
+tt cloud push
 ```
 
 For a non-default file path:
 
 ```bash
-tt eval --file path/to/tunedtensor.json
-tt push --file path/to/tunedtensor.json
+tt validate path/to/tunedtensor.json
+tt cloud push --file path/to/tunedtensor.json
 ```
 
 Use global `--json` when another program needs structured output:
 
 ```bash
-tt --json eval
-tt --json runs get <run-id>
-tt --json runs report <run-id>
+tt --json validate tunedtensor.json
+tt --json cloud runs get <run-id>
+tt --json cloud runs report <run-id>
 ```
 
 ## Start A Run
@@ -99,38 +130,38 @@ tt --json runs report <run-id>
 Preview cost and rough wall-clock duration before starting, especially for dataset-backed, continued, or hyperparameter-heavy runs:
 
 ```bash
-tt runs estimate <spec-id>
-tt runs estimate <spec-id> --dataset <dataset-id> --epochs 4
+tt cloud runs estimate <spec-id>
+tt cloud runs estimate <spec-id> --dataset <dataset-id> --epochs 4
 ```
 
 Start with default training settings unless the user asks for specific hyperparameters:
 
 ```bash
-tt runs start <spec-id>
+tt cloud runs start <spec-id>
 ```
 
 Common controls:
 
 ```bash
-tt runs estimate <spec-id> --epochs 3 --lr 0.0002 --batch-size 8
-tt runs start <spec-id> --epochs 3 --lr 0.0002 --batch-size 8
-tt runs start <spec-id> --max-eval-examples 100 --max-test-eval-examples 100
-tt runs start <spec-id> --no-augment
-tt runs start <spec-id> --no-llm-judge
+tt cloud runs estimate <spec-id> --epochs 3 --lr 0.0002 --batch-size 8
+tt cloud runs start <spec-id> --epochs 3 --lr 0.0002 --batch-size 8
+tt cloud runs start <spec-id> --max-eval-examples 100 --max-test-eval-examples 100
+tt cloud runs start <spec-id> --no-augment
+tt cloud runs start <spec-id> --no-llm-judge
 ```
 
 Use long-example and output-budget controls when dataset rows or expected completions might exceed context limits:
 
 ```bash
-tt runs start <spec-id> --long-examples truncate --max-seq-length 4096
-tt runs start <spec-id> --max-output-tokens 512 --eval-reserved-output-tokens 128
+tt cloud runs start <spec-id> --long-examples truncate --max-seq-length 4096
+tt cloud runs start <spec-id> --max-output-tokens 512 --eval-reserved-output-tokens 128
 ```
 
 Continue from a completed fine-tuned model only when the user wants incremental training:
 
 ```bash
-tt runs estimate <spec-id> --parent-model <model-id>
-tt runs start <spec-id> --parent-model <model-id>
+tt cloud runs estimate <spec-id> --parent-model <model-id>
+tt cloud runs start <spec-id> --parent-model <model-id>
 ```
 
 ## Watch And Inspect
@@ -138,36 +169,36 @@ tt runs start <spec-id> --parent-model <model-id>
 Watch a run:
 
 ```bash
-tt runs watch <run-id>
-tt runs watch <run-id> --interval 10000
+tt cloud runs watch <run-id>
+tt cloud runs watch <run-id> --interval 10000
 ```
 
 Inspect results:
 
 ```bash
-tt runs list --summary --json
-tt runs get <run-id>
-tt runs report <run-id>
+tt cloud runs list --summary --json
+tt cloud runs get <run-id>
+tt cloud runs report <run-id>
 ```
 
-Use `tt runs list --summary --json` when an agent or script only needs compact run status, scores, and pagination without detailed evaluation/event payloads. Use `tt runs report <run-id>` to compare aggregate base-vs-tuned metrics and inspect side-by-side Expected, Base, and Tuned outputs for top regressions. For the worst tuned failures instead of regressions, use:
+Use `tt cloud runs list --summary --json` when an agent or script only needs compact run status, scores, and pagination without detailed evaluation/event payloads. Use `tt cloud runs report <run-id>` to compare aggregate base-vs-tuned metrics and inspect side-by-side Expected, Base, and Tuned outputs for top regressions. For the worst tuned failures instead of regressions, use:
 
 ```bash
-tt runs report <run-id> --mode failures
+tt cloud runs report <run-id> --mode failures
 ```
 
 For held-out test examples, use:
 
 ```bash
-tt runs report <run-id> --split test
-tt runs report <run-id> --split all
+tt cloud runs report <run-id> --split test
+tt cloud runs report <run-id> --split all
 ```
 
 When reviewing a run, summarize:
 
 - Status and completed model ID, if available.
 - Pass/fail movement and aggregate scores.
-- Failed examples and regressions, including Expected/Base/Tuned differences from `tt runs report` when available.
+- Failed examples and regressions, including Expected/Base/Tuned differences from `tt cloud runs report` when available.
 - Judge notes or recurring failure patterns.
 - The next smallest spec or dataset change to try.
 
@@ -178,8 +209,8 @@ Do not start another run until the previous run's result has been inspected.
 Once a run completes, find and inspect the model:
 
 ```bash
-tt models list
-tt models get <model-id>
+tt cloud models list
+tt cloud models get <model-id>
 ```
 
 For local serving or artifact download, switch to the `tuned-tensor-serve-local` skill.
@@ -188,6 +219,6 @@ For local serving or artifact download, switch to the `tuned-tensor-serve-local`
 
 - Never commit API keys, `.env` files, downloaded models, or credentials.
 - Never print full API keys.
-- Confirm balance before training.
+- Confirm balance before paid cloud training; local training has no Tuned Tensor credit requirement.
 - Stop on insufficient credits and ask the user to add credits or approve top-up.
 - Do not delete remote specs, datasets, runs, or models unless explicitly asked.

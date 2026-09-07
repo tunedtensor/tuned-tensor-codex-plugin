@@ -1,131 +1,105 @@
 ---
 name: tuned-tensor
-description: Use for broad Tuned Tensor orientation, setup, safety rules, and choosing between the fine-tuning and local-serving workflows.
+description: Set up and operate the unified Tuned Tensor CLI, choose local or cloud execution and managed or user-supplied agent inference, and inspect usage and run information.
 ---
 
 # Tuned Tensor
 
-Tuned Tensor turns behaviour specs into small open-weight models with regression-aware, paired baseline-vs-tuned evaluation. Install the unified `tt` CLI from `@tuned-tensor/cli` for every workflow: use normal `tt` commands for account-backed cloud runs, and use `tt local ...` commands for local-first training and evaluation on a compatible NVIDIA GPU on Linux. Use the REST API only when the CLI cannot express the workflow.
+`tt` is both the local conversational agent and the CLI for Tuned Tensor. Root workflow commands operate locally; `tt cloud ...` explicitly selects account-backed cloud operations. The web app displays cloud runs and local evidence the user chooses to publish. Use the CLI to operate workflows.
 
-## Workflow Routing
+## Setup And Orientation
 
-Use the focused skills when the user has a concrete managed-service task:
-
-- `tuned-tensor-fine-tune`: create or update `tunedtensor.json`, validate, push, estimate/start managed runs, watch runs, inspect regressions, upload datasets, or continue from a parent model.
-- `tuned-tensor-serve-local`: inspect model artifacts, download/export completed managed models, run `tt models serve`, configure the OpenAI-compatible local API, or test local inference.
-
-For local-first training/evaluation without a Tuned Tensor account, start with:
+Node.js 22.19+ is required:
 
 ```bash
-npm install -g @tuned-tensor/cli
-tt local init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B --profile spark
-# Edit tunedtensor.json, then:
-tt local doctor tunedtensor.json --config local-runner.json
-tt local run tunedtensor.json --config local-runner.json
-tt local runs report <run-id> --config local-runner.json
-```
-
-Use this overview skill for setup, general Tuned Tensor questions, or tasks that span cloud fine-tuning, local training, and local serving.
-
-## CLI Setup
-
-Install one CLI package for both cloud and local workflows. Node.js 22+ is required:
-
-```bash
-npm install -g @tuned-tensor/cli
+npm install -g --ignore-scripts @tuned-tensor/cli
 tt --version
+tt --help
 tt status
-```
-
-Authenticate the cloud workflow with an API key from the Tuned Tensor dashboard:
-
-```bash
-tt auth login <api-key>
-tt auth status
-```
-
-Before making changes, orient with:
-
-```bash
-tt --version
-tt status
-tt auth status
-tt balance
 rg --files -g 'tunedtensor.json'
 ```
 
-Do not print full API keys. If managed auth is missing, ask the user for a safe login flow rather than inventing credentials. Local workflows do not require a Tuned Tensor account, but they do require a compatible Linux/NVIDIA GPU environment.
+Local spec creation, validation, reports, and local execution require no Tuned Tensor account or agent-provider key. Local training needs `uv` and supported NVIDIA CUDA hardware; basic CLI inspection does not need a GPU. `tt local ...` and `tt run` are compatibility aliases. Prefer root commands and `tt pipeline run` in new instructions.
 
-## Common Cloud Commands
+These skills target CLI 0.15.0 or newer, with `tt cloud` and managed-agent support. If an earlier local-only release does not show those commands in help, update the CLI for account workflows. Do not infer command availability from an old cloud example.
+
+## Agent Inference
+
+The agent loop and tools run on the user's laptop. Inference selection is independent of whether a training run executes locally or in the cloud.
+
+For managed inference, one Tuned Tensor access token authenticates both the inference proxy and cloud/account APIs:
 
 ```bash
-tt specs list
-tt datasets list
+tt auth login
+tt agent configure --provider tunedtensor
+tt agent status
+tt
+```
+
+`tt auth login` uses a hidden prompt. A token also enables managed inference automatically when no other provider is selected. The app owns the managed model selection; do not request an OpenRouter key or offer a managed-model override. `/model tunedtensor/managed` selects it inside the shell.
+
+For a user's own OpenRouter key, use the shell's hidden provider login and select any model the provider supports:
+
+```text
+/login openrouter
+/model openrouter/<model-id>
+```
+
+Use `tt agent models --provider openrouter --all` to inspect the catalog. Bring-your-own provider selection remains explicit and is not restricted to the managed service's model. Other supported providers and local endpoints are available through the CLI's provider configuration. Never copy credentials into a spec, command log, or repository.
+
+## Workflow Routing
+
+- Use `tuned-tensor-fine-tune` to create specs, run local pipelines or cloud fine-tuning, and inspect regression reports.
+- Use `tuned-tensor-serve-local` to verify and serve a local adapter, or download/export/serve a completed cloud model.
+
+Token-free local workflow:
+
+```bash
+tt init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B --profile spark
+# Edit tunedtensor.json, including both example placeholders.
+tt validate tunedtensor.json
+tt doctor tunedtensor.json
+tt pipeline run --spec tunedtensor.json --dry-run
+tt pipeline run --spec tunedtensor.json
+tt runs report <run-id>
+```
+
+Use `tt hardware` for local model compatibility and `tt cloud models base` for the cloud model catalog. Do not assume that cloud model support implies local hardware support.
+
+## Reports And Account Information
+
+Local information is available without authentication:
+
+```bash
+tt status
 tt runs list
-tt runs list --summary --json
 tt runs report <run-id>
 tt models list
-tt models base
+```
+
+For the user's cloud/account task, authenticate only if needed, then use:
+
+```bash
+tt auth status
+tt cloud runs list --summary --json
+tt cloud runs report <run-id>
+tt cloud datasets list
+tt cloud models list
 tt balance
+tt usage
 ```
 
-Use `tt runs list --summary --json` when an agent or script only needs compact run status, scores, and pagination without detailed evaluation/event payloads. Use full run fetches and reports for deeper triage:
+Compact cloud run summaries omit detailed evaluation/event payloads; retrieve a full report for triage. `tt usage` reports managed-agent usage, not all bring-your-own provider activity or all local training. Local run reports remain the source for local metrics. `tt publish <local-run-id>` explicitly uploads local evidence for dashboard display; do not publish as part of routine local inspection.
 
-```bash
-tt --json runs get <run-id>
-tt runs report <run-id>
-```
+Check `tt balance` before paid cloud runs and `tt usage` for the managed agent's request allowance and reset time. Cloud training credits and the managed inference allowance are separate. If credits or allowance are insufficient, report that result; a credit top-up requires the user's authorization. Do not automatically change providers, execution placement, or models after an authentication or quota error.
 
-Use a custom API base URL only for local or staging environments:
+## API Fallback
 
-```bash
-tt -u https://your-api.example.com specs list
-```
-
-## Managed Base Models
-
-- `google/gemma-4-E2B-it`
-- `google/gemma-4-E4B-it`
-- `Qwen/Qwen3.5-2B`
-- `Qwen/Qwen3.5-4B`
-- `Qwen/Qwen3-VL-2B-Instruct` for small multimodal/OCR and image-to-JSON workflows
-- `meta-llama/Llama-3.2-3B-Instruct`
-- `microsoft/Phi-4-mini-instruct`
-- `ibm-granite/granite-3.3-2b-instruct`
-- `bigcode/starcoder2-3b`
-
-When unsure, run `tt models base` and choose the smallest supported model that can plausibly handle the task.
-
-## Managed REST API Fallback
-
-Base URL:
+Prefer the CLI and its installed help. Use the authenticated REST API only when the CLI cannot express the requested workflow:
 
 ```text
 https://tunedtensor.com/api/v1
+Authorization: Bearer <access-token>
 ```
 
-Authenticate REST calls with:
-
-```text
-Authorization: Bearer <api-key>
-```
-
-Prefer official docs before constructing raw requests:
-
-- `https://tunedtensor.com/docs/quickstart`
-- `https://tunedtensor.com/docs/cli`
-- `https://tunedtensor.com/docs/authentication`
-- `https://tunedtensor.com/docs/behavior-specs`
-- `https://tunedtensor.com/docs/runs`
-- `https://tunedtensor.com/docs/datasets`
-- `https://tunedtensor.com/docs/models`
-- `https://tunedtensor.com/docs/billing`
-
-## Safety Rules
-
-- Never commit API keys, downloaded model artifacts, `.env` files, or credentials.
-- Do not print full API keys in logs or final answers.
-- Check `tt balance` before starting expensive or repeated runs.
-- If a command fails with insufficient credits, stop and ask the user to add credits or approve top-up.
-- Do not delete remote specs, datasets, runs, or models unless the user explicitly asks.
-- Do not start repeated training runs without inspecting the previous run's report.
+Consult the [CLI documentation](https://tunedtensor.com/docs/cli) and [authentication documentation](https://tunedtensor.com/docs/authentication) before constructing raw requests. A Tuned Tensor token goes only to the intended Tuned Tensor API origin; an OpenRouter key goes to OpenRouter.
