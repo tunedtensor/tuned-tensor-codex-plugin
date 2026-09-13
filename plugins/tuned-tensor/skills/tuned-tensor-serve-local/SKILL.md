@@ -21,7 +21,7 @@ tt serve local-<run-id> --config local-runner.json --print-command
 tt serve local-<run-id> --config local-runner.json
 ```
 
-Use the same runner config as the training run. `tt serve` accepts a local model ID, `active`, or `base`; it does not accept an arbitrary downloaded cloud archive. Inspect `tt serve --help` for options. The packaged vLLM server requires Linux and NVIDIA CUDA; CPU/macOS serving is not supported by this path. Local evaluation can use CPU. The separate cloud-artifact loader below retains its own device options.
+Use the same runner config as the training run. AWS-trained adapters return to the local model store; `gpu` does not redirect serving to EC2. A laptop that orchestrated AWS training still needs its own compatible serving host. `tt serve` accepts a local model ID, `active`, or `base`; it does not accept an arbitrary downloaded cloud archive. Inspect `tt serve --help` for options. The packaged vLLM server requires Linux and NVIDIA CUDA; CPU/macOS serving is not supported by this path. Local evaluation can use CPU. The separate cloud-artifact loader below retains its own device options.
 
 Optional activation requires a verified model and a passing `generalRegression` suite configured for its run:
 

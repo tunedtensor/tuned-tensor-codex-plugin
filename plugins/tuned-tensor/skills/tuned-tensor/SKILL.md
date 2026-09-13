@@ -1,11 +1,11 @@
 ---
 name: tuned-tensor
-description: Set up and operate the unified Tuned Tensor CLI, choose local or cloud execution and managed or user-supplied agent inference, and inspect usage and run information.
+description: Set up and operate the unified Tuned Tensor CLI, choose local or user-owned AWS GPUs and managed or user-supplied agent inference, and inspect usage and run information.
 ---
 
 # Tuned Tensor
 
-`tt` is both the local conversational agent and the CLI for Tuned Tensor. Root workflow commands operate locally; `tt cloud ...` explicitly selects account-backed cloud operations. The web app displays cloud runs and local evidence the user chooses to publish. Use the CLI to operate workflows.
+`tt` is both the local conversational agent and the CLI for Tuned Tensor. Root workflow commands orchestrate locally, with optional user-owned AWS GPU execution through `gpu` in the runner config. `tt cloud ...` selects TT account records; hosted training start/estimate are retired. The web app displays cloud runs and local evidence the user chooses to publish. Use the CLI to operate workflows.
 
 ## Setup And Orientation
 
@@ -19,9 +19,9 @@ tt status
 rg --files -g 'tunedtensor.json'
 ```
 
-Local spec creation, validation, reports, and local execution require no Tuned Tensor account or agent-provider key. Local training needs `uv` and supported NVIDIA CUDA hardware; basic CLI inspection does not need a GPU. `tt local ...` and `tt run` are compatibility aliases. Prefer root commands and `tt pipeline run` in new instructions.
+Local spec creation, validation, reports, and local execution require no Tuned Tensor account or agent-provider key. Training needs local `uv` and supported NVIDIA CUDA hardware locally or on a configured AWS instance; basic CLI inspection does not need a GPU. `tt local ...` and `tt run` are compatibility aliases. Prefer root commands and `tt pipeline run` in new instructions.
 
-These skills target CLI 0.15.0 or newer, with `tt cloud` and managed-agent support. If an earlier local-only release does not show those commands in help, update the CLI for account workflows. Do not infer command availability from an old cloud example.
+These skills target CLI 0.16.0 or newer, with user-owned AWS GPU support. If an earlier local-only release does not show those commands in help, update the CLI for account workflows. Do not infer command availability from an old cloud example.
 
 ## Agent Inference
 
@@ -49,22 +49,29 @@ Use `tt agent models --provider openrouter --all` to inspect the catalog. Bring-
 
 ## Workflow Routing
 
-- Use `tuned-tensor-fine-tune` to create specs, run local pipelines or cloud fine-tuning, and inspect regression reports.
+- Use `tuned-tensor-fine-tune` to create specs, run one pipeline using local CUDA or a user-owned AWS GPU, and inspect regression reports.
 - Use `tuned-tensor-serve-local` to verify and serve a local adapter, or download/export/serve a completed cloud model.
 
 Token-free local workflow:
 
 ```bash
-tt init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B --profile spark
-# Edit tunedtensor.json, including both example placeholders.
+tt init --name "Customer Support Bot" --model Qwen/Qwen3.5-2B
+# Edit tunedtensor.json, including the system prompt and both example placeholders.
 tt validate tunedtensor.json
+tt models prefetch tunedtensor.json
 tt doctor tunedtensor.json
 tt pipeline run --spec tunedtensor.json --dry-run
 tt pipeline run --spec tunedtensor.json
 tt runs report <run-id>
 ```
 
-Use `tt hardware` for local model compatibility and `tt cloud models base` for the cloud model catalog. Do not assume that cloud model support implies local hardware support.
+For AWS, configure `gpu` before `doctor` and training using the
+[AWS first-run guide](https://github.com/tunedtensor/tuned-tensor-cli/blob/main/docs/local-runtime/aws-gpu.md).
+The fine-tuning skill includes an example. AWS profiles and SSH access are
+separate from TT login. `tt hardware` inspects only the laptop; a missing local
+GPU does not prevent AWS training. `tt doctor` checks the configured instance.
+The user supplies capacity and manages AWS charges and shutdown. Keep the laptop
+running until outputs return. Serving remains local.
 
 ## Reports And Account Information
 
@@ -91,7 +98,7 @@ tt usage
 
 Compact cloud run summaries omit detailed evaluation/event payloads; retrieve a full report for triage. `tt usage` reports managed-agent usage, not all bring-your-own provider activity or all local training. Local run reports remain the source for local metrics. `tt publish <local-run-id>` explicitly uploads local evidence for dashboard display; do not publish as part of routine local inspection.
 
-Check `tt balance` before paid cloud runs and `tt usage` for the managed agent's request allowance and reset time. Cloud training credits and the managed inference allowance are separate. If credits or allowance are insufficient, report that result; a credit top-up requires the user's authorization. Do not automatically change providers, execution placement, or models after an authentication or quota error.
+Use `tt usage` for managed-agent allowance and `tt balance` for TT credits used by account services. Neither funds user-owned AWS GPUs. Training needs no TT balance check. If credits or allowance are insufficient, report that result; a credit top-up requires the user's authorization. Do not automatically change providers, execution placement, or models after an authentication or quota error.
 
 ## API Fallback
 

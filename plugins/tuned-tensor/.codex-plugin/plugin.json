@@ -1,7 +1,7 @@
 {
   "name": "tuned-tensor",
   "version": "0.1.1",
-  "description": "Codex plugin for local-first or managed Tuned Tensor fine-tuning, evaluation, and local serving.",
+  "description": "Codex plugin for Tuned Tensor training with local or user-owned AWS GPUs, evaluation, and local serving.",
   "author": {
     "name": "Tuned Tensor",
     "url": "https://tunedtensor.com/"
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Tuned Tensor",
     "shortDescription": "Build and operate Tuned Tensor behaviour specs.",
-    "longDescription": "Helps Codex use one tt CLI for token-free local training, evaluation, and serving, optional cloud runs and reporting, and a local agent with managed Tuned Tensor inference or a user-selected provider and model.",
+    "longDescription": "Helps Codex use one tt pipeline for token-free training with local or user-owned AWS GPUs, local evaluation and serving, account reporting, and a local agent with managed Tuned Tensor inference or a user-selected provider and model.",
     "developerName": "Tuned Tensor",
     "category": "Productivity",
     "capabilities": [
